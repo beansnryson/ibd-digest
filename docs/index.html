@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBD Literature Digest</title>
+  <meta name="description" content="Daily scan of inflammatory bowel disease publications from gastroenterology and high-impact journals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    .site-header {
+      background: linear-gradient(135deg, #1E3A5F 0%, #2D6A9F 60%, #3B82B5 100%);
+      color: white;
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+    .site-header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .site-header .subtitle {
+      font-size: 1.05rem;
+      opacity: 0.9;
+      font-weight: 400;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .header-meta {
+      display: inline-flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .meta-pill {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .filters {
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+    }
+    .filters-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .filter-btn {
+      padding: 0.35rem 0.9rem;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 999px;
+      background: white;
+      color: #475569;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .filter-btn:hover {
+      border-color: #2D6A9F;
+      color: #2D6A9F;
+    }
+    .filter-btn.active {
+      background: #1E3A5F;
+      border-color: #1E3A5F;
+      color: white;
+    }
+
+    .section-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .section-gi .section-icon { background: #DBEAFE; color: #1D4ED8; }
+    .section-hi .section-icon { background: #FEE2E2; color: #B91C1C; }
+    .section-count {
+      margin-left: auto;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #94A3B8;
+    }
+
+    .articles-section { margin-bottom: 3rem; }
+
+    .article-card {
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1rem;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .article-card:hover {
+      box-shadow: 0 4px 16px rgba(15,23,42,0.08);
+      border-color: #CBD5E1;
+    }
+    .article-card.hidden { display: none; }
+
+    .article-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.7rem;
+    }
+    .journal-badge {
+      background: #F1F5F9;
+      color: #475569;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.22rem 0.6rem;
+      border-radius: 5px;
+      border: 1px solid #E2E8F0;
+      letter-spacing: 0.01em;
+    }
+    .article-date {
+      color: #94A3B8;
+      font-size: 0.78rem;
+      margin-left: auto;
+    }
+
+    .article-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .article-title a {
+      color: #0F172A;
+      text-decoration: none;
+    }
+    .article-title a:hover {
+      color: #2D6A9F;
+    }
+
+    .article-authors {
+      font-size: 0.85rem;
+      color: #64748B;
+      margin-bottom: 0.75rem;
+      font-style: italic;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .abstract {
+      margin-top: 0.85rem;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 0.75rem;
+    }
+    .abstract summary {
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2D6A9F;
+      list-style: none;
+      user-select: none;
+    }
+    .abstract summary::before {
+      content: '▸ ';
+      display: inline-block;
+      transition: transform 0.15s ease;
+    }
+    .abstract[open] summary::before { content: '▾ '; }
+    .abstract-body {
+      margin-top: 0.6rem;
+      font-size: 0.88rem;
+      color: #334155;
+      line-height: 1.65;
+    }
+    .abstract-body p { margin-bottom: 0.6rem; }
+    .abstract-body p:last-child { margin-bottom: 0; }
+
+    .article-footer {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #F1F5F9;
+    }
+    .pubmed-link, .doi-link {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #2D6A9F;
+    }
+    .pubmed-link:hover, .doi-link:hover { text-decoration: underline; }
+
+    .no-articles {
+      color: #94A3B8;
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+      background: white;
+      border: 1px dashed #E2E8F0;
+      border-radius: 12px;
+    }
+
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1.5rem 3rem;
+      color: #94A3B8;
+      font-size: 0.82rem;
+      border-top: 1px solid #E2E8F0;
+      background: white;
+    }
+    .site-footer p { margin-bottom: 0.4rem; max-width: 720px; margin-left: auto; margin-right: auto; }
+    .site-footer a { color: #475569; text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .site-header { padding: 2rem 1rem 1.75rem; }
+      .site-header h1 { font-size: 1.6rem; }
+      .site-header .subtitle { font-size: 0.95rem; }
+      .container { padding: 1.5rem 1rem 3rem; }
+      .article-card { padding: 1.1rem 1.15rem; }
+      .article-title { font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>IBD Literature Digest</h1>
+  <p class="subtitle">A daily scan of inflammatory bowel disease publications from gastroenterology and high-impact medical journals.</p>
+  <div class="header-meta">
+    <span class="meta-pill">16 articles · past 7 days</span>
+    <span class="meta-pill">Updated April 28, 2026 · 18:40 UTC</span>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="filters">
+    <span class="filters-label">Filter</span>
+    <div class="filter-group">
+      <button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="Anti-TNF">Anti-TNF</button><button class="filter-btn" data-filter="Crohn&#x27;s Disease">Crohn&#x27;s Disease</button><button class="filter-btn" data-filter="IBD">IBD</button><button class="filter-btn" data-filter="JAK inhibitor">JAK inhibitor</button><button class="filter-btn" data-filter="Original Research">Original Research</button><button class="filter-btn" data-filter="Ulcerative Colitis">Ulcerative Colitis</button>
+    </div>
+  </div>
+
+  <section class="articles-section section-gi">
+    <h2 class="section-heading">
+      <span class="section-icon">GI</span>
+      Gastroenterology Journals
+      <span class="section-count">16 articles</span>
+    </h2>
+    
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Aliment Pharmacol Ther</span>
+        <span class="article-date">Apr 27 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42046187/" target="_blank" rel="noopener">Editorial: Beyond Resection-Rethinking Postoperative Management in Colonic Crohn&#x27;s Disease. Authors&#x27; Reply</a>
+      </h3>
+      <p class="article-authors">García JLR, Suárez-Ferrer C, Zabana Y</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42046187/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1111/apt.70702" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;, &quot;JAK inhibitor&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Aliment Pharmacol Ther</span>
+        <span class="article-date">Apr 27 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42045621/" target="_blank" rel="noopener">One-Year Effectiveness of Upadacitinib in Perianal Crohn&#x27;s Disease: A Real-World GETAID Study</a>
+      </h3>
+      <p class="article-authors">Richard N, Seksik P, Altwegg R, Nachury M, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span><span class="tag" style="color:#065F46;background:#D1FAE5">JAK inhibitor</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>INTRODUCTION: Upadacitinib (UPA) is effective for treating luminal Crohn&#x27;s disease (CD), but data on perianal CD (pCD) remain limited.</p><p>METHODS: All consecutive patients with active pCD (primary and/or secondary lesions) treated with UPA across 13 French centres between September 2022 and August 2025 were included in a retrospective cohort study. Clinical remission was defined as absence of fistula drainage (spontaneous or on gentle pressure) and healing of anal ulcerations without initiation of new therapy. Clinical response was defined as ≥ 50% improvement in fistulas and/or ulcerations based on physician assessment. Clinical outcomes were analysed using non-responder imputation, and magnetic resonance imaging (MRI) outcomes as observed.</p><p>RESULTS: Among the 59 patients included, 43 (73%) had fistulizing pCD and 16 (27%) isolated anal ulcerations. All patients were previously exposed to at least one biologic and 79% of those with fistulizing pCD underwent prior perianal surgery. In patients with fistulizing pCD, clinical remission was achieved in 11/43 (26%) and 11/43 (26%) patients at 6 and 12 months, respectively, clinical response in 21/43 (49%) and 13/43 (30%) patients. At 12 months, MRI response was documented in 9/13 (69%) and MRI remission in 1/13 (8%) patients with fistulizing pCD. Among patients with fistulizing pCD, no factors predicted clinical remission. Among patients with isolated anal ulcerations, complete healing occurred in 5/16 (31%) at 3 months, 4/16 (25%) at 6 months and 4/16 (25%) at 12 months.</p><p>CONCLUSION: In this real-world cohort of refractory pCD, UPA achieved clinical remission in one-quarter of patients at 1 year.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42045621/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1111/apt.70682" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;IBD&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Dig Dis Sci</span>
+        <span class="article-date">Apr 27 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42043471/" target="_blank" rel="noopener">Treating the Whole Disease: A Call for Holistic Care for Patients with Inflammatory Bowel Disease</a>
+      </h3>
+      <p class="article-authors">van der Have M, Kaptein AA</p>
+      <div class="tag-row"><span class="tag" style="color:#4338CA;background:#E0E7FF">IBD</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42043471/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1007/s10620-026-09915-5" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Ulcerative Colitis&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Gastroenterology</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42044846/" target="_blank" rel="noopener">Evaluating Linear Parametric Poisson Regression vs Nonparametric Unsupervised Learning in Ulcerative Colitis Data</a>
+      </h3>
+      <p class="article-authors">Takefuji Y</p>
+      <div class="tag-row"><span class="tag" style="color:#1D4ED8;background:#DBEAFE">Ulcerative Colitis</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42044846/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1053/j.gastro.2026.04.011" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Inflamm Bowel Dis</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035706/" target="_blank" rel="noopener">Entering a new GALAXI: The importance of long-term data in Crohn&#x27;s disease clinical trials</a>
+      </h3>
+      <p class="article-authors">Sleiman J, El Ouali S, Noor NM</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035706/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1093/ibd/izag073" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;IBD&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Inflamm Bowel Dis</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035295/" target="_blank" rel="noopener">Socioeconomic disparities in biologic persistence among patients with inflammatory bowel disease are associated with increased health care utilization</a>
+      </h3>
+      <p class="article-authors">Sheehan JL, Eloubeidi D, Newman KL, Johnson LA, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#4338CA;background:#E0E7FF">IBD</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>INTRODUCTION: Biologic persistence, defined as the total uninterrupted time on a biologic agent, is associated with improved outcomes in inflammatory bowel disease (IBD). However, social determinants of health (SDOH), such as socioeconomic status, may influence a patient&#x27;s ability to access these medications. We aimed to better understand the relationship between socioeconomic status and biologic persistence in patients with IBD and to determine whether patients with poor biologic persistence had higher health care utilization.</p><p>METHODS: We identified patients with IBD seen at the University of Michigan during 2015-2022. Using the Centers for Disease Control Social Vulnerability Index (SVI), we examined the relationship between socioeconomic status and biologic persistence, defined as an active biologic prescription for 365 days or longer, while controlling a priori for IBD type, age, sex, race, comorbidities, IBD severity, and insurance type. Secondarily, we examined the relationship between biologic persistence and unplanned health care utilization.</p><p>RESULTS: In this cohort of 3067 patients with IBD who were prescribed biologics, 20% (n = 620) did not achieve biologic persistence. Low socioeconomic status (odds ratio [OR] 0.56; P = .003) was associated with a lower likelihood of achieving biologic persistence. Biologic persistence was associated with lower risk of IBD-related hospitalization (incidence rate ratio [IRR], 0.48; P &lt; .001), readmission (IRR, 0.52; P &lt; .001), and surgery (IRR, 0.33; P &lt; .001).</p><p>CONCLUSIONS: Low socioeconomic status was associated with lower likelihood of biologic persistence and patients who lacked biologic persistence had greater IBD-related unplanned health care utilization.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035295/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1093/ibd/izag062" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Ulcerative Colitis&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Inflamm Bowel Dis</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035293/" target="_blank" rel="noopener">Inflammatory bowel disease and risk of perineal injury in primiparous vaginal births: a retrospective cohort study</a>
+      </h3>
+      <p class="article-authors">Gilboa I, Gabbai D, Segal N, Gold R, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#1D4ED8;background:#DBEAFE">Ulcerative Colitis</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>BACKGROUND: The association between inflammatory bowel disease (IBD) without active perineal disease and the risk of perineal trauma during vaginal birth remains unclear. Thus, we aimed to determine whether IBD without active perianal disease is independently associated with perineal trauma.</p><p>METHODS: A retrospective cohort study including all primiparous women with singleton, cephalic, term pregnancies who delivered vaginally at a tertiary medical center between 2012 and 2023. Women with IBD without active perianal disease were compared with women without IBD. Women with active perianal disease were excluded according to institutional guidelines. The primary outcomes included overall perineal injury, defined as any spontaneous perineal tear, labial laceration, obstetric anal sphincter injury (OASI), and episiotomy. Multivariable logistic regression was performed to assess the association between inflammatory bowel disease and perineal trauma, adjusting for potential confounders.</p><p>RESULTS: Among 45,250 primiparous women, 244 women (0.5%) had IBD. Overall perineal injury rates were similar between the IBD and control groups (84.0% vs. 85.4%; P = .553). OASI was comparable (0.4% vs. 0.9%; P = .728), and episiotomy rates did not differ significantly. In multivariable analysis, IBD was not associated with perineal trauma (aOR 0.82; 95% CI 0.56-1.19, P = .288). Independent predictors included vacuum-assisted delivery, higher birthweight, occiput posterior presentation, prolonged second stage, and epidural analgesia. Subgroup analysis showed no differences between ulcerative colitis and Crohn&#x27;s disease.</p><p>CONCLUSION: IBD without active perianal disease does not increase the risk of perineal injury in primiparous women undergoing term vaginal delivery. Vaginal birth is an appropriate mode of delivery in this population.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42035293/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1093/ibd/izag067" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Ulcerative Colitis&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">J Gastroenterol</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42034669/" target="_blank" rel="noopener">Reply to &quot;Letter to &quot;Increasing age at diagnosis raises malignancy risk and aminosalicylate intolerance influences therapeutic strategies in ulcerative colitis&quot;&quot;</a>
+      </h3>
+      <p class="article-authors">Akiyama S, Tsuchiya K</p>
+      <div class="tag-row"><span class="tag" style="color:#1D4ED8;background:#DBEAFE">Ulcerative Colitis</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42034669/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1007/s00535-026-02427-z" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Dig Dis Sci</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033604/" target="_blank" rel="noopener">Can Fecal Metabolites Provide Insight into the Heterogeneity of Crohn&#x27;s Disease?</a>
+      </h3>
+      <p class="article-authors">Raich SS, Kaakoush NO</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033604/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1007/s10620-026-09936-0" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Aliment Pharmacol Ther</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033103/" target="_blank" rel="noopener">Letter: Early Inflammatory Benefit Is Not Yet Equivalent to Durable Surgical Advantage After Colectomy in Colonic Crohn&#x27;s Disease</a>
+      </h3>
+      <p class="article-authors">Li J</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033103/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1111/apt.70700" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;IBD&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Aliment Pharmacol Ther</span>
+        <span class="article-date">Apr 25 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033093/" target="_blank" rel="noopener">Editorial: Optimal Treatment for Older Patients With Inflammatory Bowel Disease: How to Detect and Manage Frailty? Authors&#x27; Reply</a>
+      </h3>
+      <p class="article-authors">Fons AB, Asscher VER, Mooijaart SP, Maljaars PWJ</p>
+      <div class="tag-row"><span class="tag" style="color:#4338CA;background:#E0E7FF">IBD</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42033093/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1111/apt.70660" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Ulcerative Colitis&quot;, &quot;Original Research&quot;, &quot;Anti-TNF&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Inflamm Bowel Dis</span>
+        <span class="article-date">Apr 24 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42030468/" target="_blank" rel="noopener">Rethinking the dose: A Bayesian meta-analysis of infliximab intensification in acute severe ulcerative colitis</a>
+      </h3>
+      <p class="article-authors">Goyal MK, Dutta P, Choy MC, Berinstein JA, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#1D4ED8;background:#DBEAFE">Ulcerative Colitis</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span><span class="tag" style="color:#065F46;background:#D1FAE5">Anti-TNF</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>INTRODUCTION: The optimal infliximab (IFX) dosing strategy for acute severe ulcerative colitis (ASUC) remains unclear. Though intensified IFX dosing is frequently employed, evidence supporting its efficacy has been mixed and it is uncertain if intensified IFX more effectively captures remission than standard-dose IFX. We conducted an updated meta-analysis comparing standard- vs intensified-dose IFX in ASUC, incorporating PREDICT-UC trial data and applying a Bayesian framework to better integrate prior evidence and quantify uncertainty.</p><p>METHODS: Electronic databases were systematically searched from inception to December 2024 (PROSPERO ID: CRD42024616359). We conducted a 2-step meta-analysis. First, retrospective cohort studies were assessed with a frequentist random-effects meta-analytic approach. Second, because there is only 1 trial (PREDICT-UC) comparing intensified vs standard IFX in ASUC, we applied a Bayesian meta-analytic approach by using historical trials of standard-dose IFX in ASUC to define the prior probability distribution and then compared that to PREDICT-UC.</p><p>RESULTS: Ten retrospective cohort studies (530 standard-dose and 406 intensified-dose patients) were included in the frequentist analysis. We applied a Bayesian binomial regression model with the historical randomized controlled trials of standard-dose IFX as the reference group. The estimated 3-month colectomy rate for standard-dose IFX was 27% (95% credible interval, 22%-33%). In the PREDICT-UC trial, observed colectomy rates were 15% in patients receiving rescue-dose IFX at 5 mg/kg and 6% in those receiving upfront intensified dosing at 10 mg/kg. Posterior estimates for both intensified dosing strategies in PREDICT-UC were credibly lower than the standard-dose IFX reference.</p><p>CONCLUSION: Integrating observational and trial data via Bayesian methods suggests that intensified IFX dosing reduces early colectomy in ASUC. These findings support prospective, adequately powered trials to confirm benefit, identify subgroups most likely to respond, and refine individualized accelerated-dosing algorithms.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42030468/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1093/ibd/izag042" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;IBD&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Dig Dis Sci</span>
+        <span class="article-date">Apr 24 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42029965/" target="_blank" rel="noopener">SD in IBD: Does Advanced Therapy Improve Sexual Dysfunction in Patients with Inflammatory Bowel Disease?</a>
+      </h3>
+      <p class="article-authors">Falloon K, Rieder F</p>
+      <div class="tag-row"><span class="tag" style="color:#4338CA;background:#E0E7FF">IBD</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42029965/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1007/s10620-026-09901-x" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Inflamm Bowel Dis</span>
+        <span class="article-date">Apr 23 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42024671/" target="_blank" rel="noopener">Development and validation of a predictive model for early failure of biological therapy in perianal fistulizing Crohn&#x27;s disease based on three-dimensional transrectal ultrasound</a>
+      </h3>
+      <p class="article-authors">Ding S, Liu C, Zhang G, Ren W, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>IMPORTANCE: Despite the clinical use of three-dimensional transrectal ultrasound (3D-TRUS) in pfCD, no validated model exists to predict early biologic treatment failure.</p><p>OBJECTIVE: Our objective was to develop and validate such a predictive model using 3D-TRUS-derived parameters.</p><p>DESIGN: This study was a double-center retrospective study.</p><p>SETTING: Patients with pfCD who underwent biologic therapy at two medical centers and completed both 3D-TRUS and magnetic resonance imaging (MRI) assessments prior to treatment initiation and at approximately 12 weeks post-treatment (range: 6-18 weeks) were included in the study.</p><p>PARTICIPANTS: A total of 102 patients were included in the analysis, with 80 patients from Hospital A formed the training/internal validation cohort; 22 from Hospital B comprised the external validation cohort.</p><p>EXPOSURE: Biologic therapy for pfCD.</p><p>MAIN OUTCOME(S) AND MEASURE(S): The primary outcome was early treatment failure, defined as stable or aggravated disease (SD/AD) based on MRI criteria. Patients were divided into a failure group and a non-failure group. Predictive factors were identified using LASSO regression followed by multivariate logistic regression, and a nomogram was constructed based on the final model. Model performance was assessed through internal validation via the Bootstrap method (1000 resamples) and external validation.</p><p>RESULTS: Multivariate analysis identified three independent predictors of early treatment failure (all P &lt; .05): main fistula length ≥ 2 cm, inflammatory mass size &gt; 2 cm, and internal orifice-anal margin distance (per 1-mm increase). The nomogram showed an AUC of 0.955 (95% CI: 0.915-0.995) in training cohort. Hosmer-Lemeshow confirmed good fit, and decision curve analysis (DCA) demonstrated clinical utility. Internal validation maintained an AUC of 0.955 (0.911-0.987). External validation yielded an AUC of 0.875 (0.700-1.000), with DCA supporting clinical applicability.</p><p>CONCLUSIONS AND RELEVANCE: 3D-TRUS features effectively predict early biologic failure in pfCD. The nomogram provides a tool for risk assessment to guide clinical decisions regarding treatment escalation or switch, supporting more individualized patient management.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42024671/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1093/ibd/izag048" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;IBD&quot;, &quot;Original Research&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Aliment Pharmacol Ther</span>
+        <span class="article-date">Apr 23 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42023738/" target="_blank" rel="noopener">A Care Pathway for the Treatment of IBD Reduces Healthcare Costs and Is Cost-Effective: Results of the Multicentre IBD Value Study</a>
+      </h3>
+      <p class="article-authors">Visser EH, Voshaar MAO, van Linschoten RCA, Bodelier AGL, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#4338CA;background:#E0E7FF">IBD</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>BACKGROUND: An advanced therapy care pathway (ACP) for the treatment of patients with IBD can reduce practice variation and improve outcomes.</p><p>AIMS: This study aimed to estimate the effect of the ACP on costs and quality of life, and to assess the cost-effectiveness of the ACP.</p><p>METHODS: A cost-utility and cost-effectiveness analysis was conducted from a societal perspective. The ACP was implemented in six hospitals, and two hospitals in the same region served as controls. Costs and quality of life were assessed during a baseline period (December 2020-December 2021) and an intervention period after implementing the ACP (March 2022-March 2023). Quality-adjusted life years (QALYs) were derived from the EQ-5D-5L; disease control from the IBD-Control questionnaire. A difference-in-differences (DiD) analysis was conducted, and the net monetary benefit and incremental cost-effectiveness ratio (ICER) were calculated.</p><p>RESULTS: In total, 1,173 patients were included (intervention n = 841, control n = 332). Baseline costs per patient were €23,259.96 in the intervention hospitals and €22,837.93 in the control hospitals. During the intervention period, costs decreased to €20,959.76 in intervention hospitals. This reduction was not observed in control hospitals (€22,191.21). The DiD-analysis showed cost savings of -€1933.69; QALYs (0.001) and disease control (0.15) did not change. The ICER indicated cost savings without compromising quality of life or disease control.</p><p>CONCLUSIONS: The implementation of an ACP for the treatment of patients with IBD reduces costs, maintains quality of life and disease control, and is cost-effective. These results emphasise that the implementation of care pathways in current practices should be considered.</p><p>TRIAL REGISTRATION NUMBER: NL-OMON21751. Website: Value-based healthcare for Inflammatory Bowel Disease: Improving (cost-) effectiveness.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42023738/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1111/apt.70690" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+
+    <article class="article-card" data-tags='[&quot;Crohn&#x27;s Disease&quot;, &quot;Original Research&quot;, &quot;Anti-TNF&quot;]'>
+      <div class="article-header">
+        <span class="journal-badge">Dig Dis Sci</span>
+        <span class="article-date">Apr 23 2026</span>
+      </div>
+      <h3 class="article-title">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42020855/" target="_blank" rel="noopener">Urinary Calprotectin Is Not a Reliable Surrogate of Fecal Calprotectin Levels in Adults and Children with Crohn&#x27;s Disease</a>
+      </h3>
+      <p class="article-authors">White B, Varcamonti L, Gkikas K, Kerbiriou C, et al.</p>
+      <div class="tag-row"><span class="tag" style="color:#6D28D9;background:#EDE9FE">Crohn&#x27;s Disease</span><span class="tag" style="color:#374151;background:#F1F5F9">Original Research</span><span class="tag" style="color:#065F46;background:#D1FAE5">Anti-TNF</span></div>
+      <details class="abstract"><summary>Show abstract</summary><div class="abstract-body"><p>PURPOSE: Fecal calprotectin (FCAL) is an established biomarker for monitoring intestinal inflammation in inflammatory bowel disease. However, fecal sampling can be socially unacceptable and inconvenient. Urinary calprotectin (UCAL) could potentially be a suitable surrogate marker of FCAL.</p><p>METHODS: Levels of FCAL and UCAL and C-reactive protein (CRP) were measured in samples from two different cohorts; a) in adults with active Crohn&#x27;s disease (CD) receiving induction treatment with adalimumab and b) children with CD during early food re-introduction after successful treatment with exclusive enteral nutrition (EEN). In each cohort, participants were categorized based on their FCAL trajectories. Adults were classified as responders if FCAL decreased ≥ 50% after 12 weeks of treatment; otherwise, they were classified as non-responders. In children, a FCAL baseline rise &gt; 100% during three weeks of food reintroduction, after EEN, was classified as having an FCAL increase. Children were classified as FCAL-stable if FCAL remained &lt; 300 mg/kg throughout food reintroduction. FCAL, UCAL and CRP were also measured in healthy adults.</p><p>RESULTS: A total of 364 paired stool and urine samples, and 100 blood samples were utilized from adults and children with CD. Changes in UCAL did not parallel changes in FCAL, neither in adults who were classed as FCAL responders after 12-weeks treatment with biologics, nor in pediatric patients who demonstrated an increase in FCAL, following completion of EEN and return to normal diet. UCAL did not correlate with either FCAL or CRP.</p><p>CONCLUSIONS: Urinary calprotectin is not a useful biomarker of systemic or gut inflammation in patients with CD.</p></div></details>
+      <div class="article-footer">
+        <a href="https://pubmed.ncbi.nlm.nih.gov/42020855/" target="_blank" rel="noopener" class="pubmed-link">PubMed ↗</a>
+        <a href="https://doi.org/10.1007/s10620-026-09795-9" target="_blank" rel="noopener" class="doi-link">Full text →</a>
+      </div>
+    </article>
+  </section>
+
+  <section class="articles-section section-hi">
+    <h2 class="section-heading">
+      <span class="section-icon">★</span>
+      High-Impact Journals
+      <span class="section-count">0 articles</span>
+    </h2>
+    <p class="no-articles">No new IBD articles in this period.</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Data from <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed / NCBI</a> via E-utilities API. Updated daily via GitHub Actions.</p>
+  <p style="font-size:0.76rem;color:#CBD5E1">
+    Scanning: Gut · Gastroenterology · AJG · J Crohn's Colitis · Inflamm Bowel Dis · CGH · UEGJ · APT · Dig Dis Sci · J Gastroenterol · Therap Adv Gastroenterol ·
+    NEJM · Lancet · Lancet GH · JAMA · JAMA IM · Nat Med · BMJ · Ann Intern Med · Cell · Sci Transl Med
+  </p>
+</footer>
+
+<script>
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('.article-card');
+
+  function applyFilter(filter) {
+    cards.forEach(card => {
+      if (filter === 'all') {
+        card.classList.remove('hidden');
+      } else {
+        const tags = JSON.parse(card.dataset.tags);
+        card.classList.toggle('hidden', !tags.includes(filter));
+      }
+    });
+    document.querySelectorAll('.articles-section').forEach(section => {
+      const visible = section.querySelectorAll('.article-card:not(.hidden)').length;
+      const countEl = section.querySelector('.section-count');
+      if (countEl) countEl.textContent = visible + ' article' + (visible !== 1 ? 's' : '');
+    });
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilter(btn.dataset.filter);
+    });
+  });
+</script>
+
+</body>
+</html>

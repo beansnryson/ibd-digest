@@ -1,0 +1,38 @@
+name: Daily IBD Journal Scan
+
+on:
+  schedule:
+    # 11:00 UTC = 6 AM Central / 7 AM Eastern — fresh by morning
+    - cron: '0 11 * * *'
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run IBD scanner
+        run: python scan.py
+
+      - name: Commit updated digest
+        run: |
+          git config user.name "IBD Scanner Bot"
+          git config user.email "actions@github.com"
+          git add docs/
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Daily IBD digest: $(date -u +%Y-%m-%d)"
+            git push
+          fi
