@@ -25,6 +25,7 @@ except ImportError:
 
 NCBI_EMAIL = "bryson.duhon@gmail.com"  # Required by NCBI E-utilities policy
 DAYS_BACK = 7
+CONFERENCE_DAYS_BACK = 90  # Conference abstracts publish in batches; cast wider net
 OUTPUT_DIR = Path(__file__).parent / "docs"
 PUBMED_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
@@ -74,6 +75,36 @@ IBD_QUERY = (
     'pouchitis[tiab] OR '
     '"perianal fistula"[tiab])'
 )
+
+# Conference identifiers that appear in PubMed article titles.
+CONFERENCE_TITLE_QUERY = (
+    '('
+    '"European Crohn"[ti] OR '
+    '"ECCO"[ti] OR '
+    '"Digestive Disease Week"[ti] OR '
+    '"DDW"[ti] OR '
+    '"UEG Week"[ti] OR '
+    '"United European Gastroenterology Week"[ti] OR '
+    '"Crohn\'s and Colitis Congress"[ti] OR '
+    '"ACG Annual"[ti] OR '
+    '"American College of Gastroenterology"[ti]'
+    ')'
+)
+
+# Map title keywords to canonical conference labels for tagging.
+CONFERENCE_LABELS = [
+    ("ecco", "ECCO Congress"),
+    ("european crohn", "ECCO Congress"),
+    ("ddw", "DDW"),
+    ("digestive disease week", "DDW"),
+    ("ueg week", "UEG Week"),
+    ("uegw", "UEG Week"),
+    ("united european gastroenterology week", "UEG Week"),
+    ("crohn's and colitis congress", "Crohn's & Colitis Congress"),
+    ("crohns and colitis congress", "Crohn's & Colitis Congress"),
+    ("acg annual", "ACG Annual"),
+    ("american college of gastroenterology", "ACG Annual"),
+]
 
 
 # ─── PubMed E-utilities ───────────────────────────────────────────────────────
@@ -222,6 +253,15 @@ BIOLOGIC_CLASSES = {
 }
 
 
+def detect_conference(art):
+    """Return the conference label for an article, or None if not detected."""
+    title_lower = art["title"].lower()
+    for keyword, label in CONFERENCE_LABELS:
+        if keyword in title_lower:
+            return label
+    return None
+
+
 def tag_article(art):
     text = (art["title"] + " " + art["abstract"] + " " + " ".join(art["mesh"])).lower()
     tags = []
@@ -280,6 +320,11 @@ TAG_COLORS = {
     "Guideline": ("#7C2D12", "#FED7AA"),
     "Original Research": ("#374151", "#F1F5F9"),
     "Case Report": ("#6B7280", "#F1F5F9"),
+    "ECCO Congress": ("#9F1239", "#FFE4E6"),
+    "DDW": ("#9F1239", "#FFE4E6"),
+    "UEG Week": ("#9F1239", "#FFE4E6"),
+    "ACG Annual": ("#9F1239", "#FFE4E6"),
+    "Crohn's & Colitis Congress": ("#9F1239", "#FFE4E6"),
 }
 DEFAULT_DRUG_COLOR = ("#065F46", "#D1FAE5")
 
@@ -329,6 +374,7 @@ def render_article(art):
 def generate_html(articles, generated_at):
     gi_articles = [a for a in articles if a.get("section") == "gi"]
     hi_articles = [a for a in articles if a.get("section") == "high-impact"]
+    conf_articles = [a for a in articles if a.get("section") == "conference"]
 
     all_tags = sorted({t for a in articles for t in a["tags"]})
     filter_buttons = '<button class="filter-btn active" data-filter="all">All</button>'
@@ -344,6 +390,11 @@ def generate_html(articles, generated_at):
         "\n".join(render_article(a) for a in hi_articles)
         if hi_articles
         else '<p class="no-articles">No new IBD articles in this period.</p>'
+    )
+    conf_html = (
+        "\n".join(render_article(a) for a in conf_articles)
+        if conf_articles
+        else '<p class="no-articles">No conference abstracts indexed in the past 90 days.</p>'
     )
 
     date_display = generated_at.strftime("%B %d, %Y")
@@ -482,6 +533,7 @@ def generate_html(articles, generated_at):
     }}
     .section-gi .section-icon {{ background: #DBEAFE; color: #1D4ED8; }}
     .section-hi .section-icon {{ background: #FEE2E2; color: #B91C1C; }}
+    .section-conf .section-icon {{ background: #FFE4E6; color: #9F1239; }}
     .section-count {{
       margin-left: auto;
       font-size: 0.8rem;
@@ -644,7 +696,8 @@ def generate_html(articles, generated_at):
   <h1>IBD Literature Digest</h1>
   <p class="subtitle">A daily scan of inflammatory bowel disease publications from gastroenterology and high-impact medical journals.</p>
   <div class="header-meta">
-    <span class="meta-pill">{len(articles)} articles · past {DAYS_BACK} days</span>
+    <span class="meta-pill">{len(gi_articles) + len(hi_articles)} journal articles · past {DAYS_BACK} days</span>
+    <span class="meta-pill">{len(conf_articles)} conference abstracts · past {CONFERENCE_DAYS_BACK} days</span>
     <span class="meta-pill">Updated {date_display} · {time_display}</span>
   </div>
 </header>
@@ -674,6 +727,16 @@ def generate_html(articles, generated_at):
       <span class="section-count">{len(hi_articles)} article{'s' if len(hi_articles) != 1 else ''}</span>
     </h2>
     {hi_html}
+  </section>
+
+  <section class="articles-section section-conf">
+    <h2 class="section-heading">
+      <span class="section-icon">◆</span>
+      Conference Abstracts
+      <span class="section-count">{len(conf_articles)} article{'s' if len(conf_articles) != 1 else ''}</span>
+    </h2>
+    <p style="color:#94A3B8;font-size:0.82rem;margin-bottom:0.85rem">DDW · ECCO · UEG Week · ACG · Crohn's &amp; Colitis Congress · 90-day window</p>
+    {conf_html}
   </section>
 
 </main>
@@ -729,7 +792,7 @@ def main():
     all_articles = []
     seen = set()
 
-    print("[1/2] Scanning gastroenterology journals...")
+    print("[1/3] Scanning gastroenterology journals...")
     gi_query = f"({' OR '.join(GI_JOURNALS)}) AND {IBD_QUERY} AND {date_q}"
     gi_pmids = search_pubmed(gi_query, retmax=200)
     print(f"      {len(gi_pmids)} matching IDs")
@@ -745,7 +808,7 @@ def main():
                 seen.add(a["pmid"])
         time.sleep(0.4)
 
-    print("[2/2] Scanning high-impact journals...")
+    print("[2/3] Scanning high-impact journals...")
     hi_query = f"({' OR '.join(HIGH_IMPACT_JOURNALS)}) AND {IBD_QUERY} AND {date_q}"
     hi_pmids = search_pubmed(hi_query, retmax=80)
     print(f"      {len(hi_pmids)} matching IDs")
@@ -757,6 +820,29 @@ def main():
             if a["pmid"] not in seen:
                 a["section"] = "high-impact"
                 a["tags"] = tag_article(a)
+                all_articles.append(a)
+                seen.add(a["pmid"])
+        time.sleep(0.4)
+
+    print(f"[3/3] Scanning conference abstracts (last {CONFERENCE_DAYS_BACK} days)...")
+    end = datetime.now(timezone.utc)
+    start = end - timedelta(days=CONFERENCE_DAYS_BACK)
+    conf_date_q = f'{start.strftime("%Y/%m/%d")}[pdat]:{end.strftime("%Y/%m/%d")}[pdat]'
+    conf_query = f"{IBD_QUERY} AND {CONFERENCE_TITLE_QUERY} AND {conf_date_q}"
+    conf_pmids = search_pubmed(conf_query, retmax=200)
+    print(f"      {len(conf_pmids)} matching IDs")
+    time.sleep(0.4)
+
+    if conf_pmids:
+        conf_arts = fetch_details(conf_pmids)
+        for a in conf_arts:
+            if a["pmid"] not in seen:
+                a["section"] = "conference"
+                tags = tag_article(a)
+                conf_label = detect_conference(a)
+                if conf_label and conf_label not in tags:
+                    tags.insert(0, conf_label)
+                a["tags"] = tags
                 all_articles.append(a)
                 seen.add(a["pmid"])
 
